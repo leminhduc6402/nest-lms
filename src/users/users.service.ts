@@ -9,6 +9,7 @@ import aqp from 'api-query-params';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
+import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -16,6 +17,16 @@ export class UsersService {
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
   ) {}
+
+  hashPassword = (password: string) => {
+    const salt = genSaltSync(10);
+    const hash = hashSync(password, salt);
+    return hash;
+  };
+
+  isValidPassword(password: string, hash: string) {
+    return compareSync(password, hash);
+  }
 
   async create(createUserDto: CreateUserDto) {
     const isExist = await this.userModel.findOne({
@@ -26,7 +37,11 @@ export class UsersService {
         `Email: ${createUserDto.email} already exists`,
       );
     }
-    const newUser = await this.userModel.create(createUserDto);
+    const hashPassword = this.hashPassword(createUserDto.password);
+    const newUser = await this.userModel.create({
+      ...createUserDto,
+      password: hashPassword,
+    });
     return newUser;
   }
 
