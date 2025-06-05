@@ -28,6 +28,12 @@ export class UsersService {
     return compareSync(password, hash);
   }
 
+  async findOneByEmail(email: string) {
+    return await this.userModel.findOne({
+      email,
+    });
+  }
+
   async create(createUserDto: CreateUserDto) {
     const isExist = await this.userModel.findOne({
       email: createUserDto.email,
@@ -87,9 +93,7 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return await this.userModel.findByIdAndUpdate({
-      _id: id,
-      updateUserDto,
+    return await this.userModel.findByIdAndUpdate(id, updateUserDto, {
       new: true,
     });
   }

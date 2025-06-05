@@ -36,6 +36,9 @@ export class User {
   codeExpiration: Date;
 
   @Prop()
+  refreshToken: string;
+
+  @Prop()
   createdAt: Date;
 
   @Prop()
