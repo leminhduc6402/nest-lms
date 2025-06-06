@@ -10,6 +10,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -103,5 +106,27 @@ export class UsersService {
       throw new NotFoundException('Can not found this user');
     }
     return await this.userModel.findByIdAndDelete(id).exec();
+  }
+
+  async handleRegister(createUserDto: CreateAuthDto) {
+    const isExist = await this.userModel.findOne({
+      email: createUserDto.email,
+    });
+    if (isExist) {
+      throw new BadRequestException(
+        `Email: ${createUserDto.email} already exists`,
+      );
+    }
+    const hashPassword = this.hashPassword(createUserDto.password);
+    const uuid = uuidv4();
+    const newUser = await this.userModel.create({
+      ...createUserDto,
+      password: hashPassword,
+      isActive: false,
+      codeID: uuid,
+      codeExpiration: dayjs().add(1, 'minutes'),
+    });
+
+    return newUser;
   }
 }
