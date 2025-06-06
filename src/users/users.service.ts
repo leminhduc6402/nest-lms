@@ -1,24 +1,26 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import aqp from 'api-query-params';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
+import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import dayjs from 'dayjs';
+import mongoose, { Model } from 'mongoose';
 import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
-import dayjs from 'dayjs';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private readonly mailerService: MailerService,
   ) {}
 
   hashPassword = (password: string) => {
@@ -109,22 +111,32 @@ export class UsersService {
   }
 
   async handleRegister(createUserDto: CreateAuthDto) {
+    const { email } = createUserDto;
     const isExist = await this.userModel.findOne({
-      email: createUserDto.email,
+      email: email,
     });
     if (isExist) {
-      throw new BadRequestException(
-        `Email: ${createUserDto.email} already exists`,
-      );
+      throw new BadRequestException(`Email: ${email} already exists`);
     }
     const hashPassword = this.hashPassword(createUserDto.password);
-    const uuid = uuidv4();
+    const codeID = uuidv4();
     const newUser = await this.userModel.create({
       ...createUserDto,
       password: hashPassword,
       isActive: false,
-      codeID: uuid,
-      codeExpiration: dayjs().add(1, 'minutes'),
+      codeID: codeID,
+      codeExpiration: dayjs().add(5, 'minutes'),
+    });
+
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Activate Your Account',
+      text: 'welcome',
+      template: 'register',
+      context: {
+        name: createUserDto.name,
+        activationCode: codeID,
+      },
     });
 
     return newUser;
