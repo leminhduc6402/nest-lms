@@ -6,4 +6,7 @@ export class CreateAuthDto {
 
   @IsNotEmpty()
   password: string;
+
+  @IsNotEmpty()
+  name: string;
 }

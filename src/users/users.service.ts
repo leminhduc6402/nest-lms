@@ -1,21 +1,26 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import aqp from 'api-query-params';
+import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import dayjs from 'dayjs';
+import mongoose, { Model } from 'mongoose';
+import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import aqp from 'api-query-params';
-import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
-import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private readonly mailerService: MailerService,
   ) {}
 
   hashPassword = (password: string) => {
@@ -103,5 +108,37 @@ export class UsersService {
       throw new NotFoundException('Can not found this user');
     }
     return await this.userModel.findByIdAndDelete(id).exec();
+  }
+
+  async handleRegister(createUserDto: CreateAuthDto) {
+    const { email } = createUserDto;
+    const isExist = await this.userModel.findOne({
+      email: email,
+    });
+    if (isExist) {
+      throw new BadRequestException(`Email: ${email} already exists`);
+    }
+    const hashPassword = this.hashPassword(createUserDto.password);
+    const codeID = uuidv4();
+    const newUser = await this.userModel.create({
+      ...createUserDto,
+      password: hashPassword,
+      isActive: false,
+      codeID: codeID,
+      codeExpiration: dayjs().add(5, 'minutes'),
+    });
+
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Activate Your Account',
+      text: 'welcome',
+      template: 'register',
+      context: {
+        name: createUserDto.name,
+        activationCode: codeID,
+      },
+    });
+
+    return newUser;
   }
 }
