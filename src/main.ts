@@ -29,8 +29,8 @@ async function bootstrap() {
   // Set global prefix for API routes
   app.setGlobalPrefix('api');
   app.enableVersioning({
-    type: VersioningType.URI, // Enables versioning via URI
-    defaultVersion: '1', // Sets the default version to 1
+    type: VersioningType.URI,
+    defaultVersion: '1',
   });
 
   await app.listen(configService.get<string>('SERVER_PORT') ?? 3000);
