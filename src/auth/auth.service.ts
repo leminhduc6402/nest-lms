@@ -12,6 +12,9 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) return null;
+
     const isValidPassword = await this.usersService.isValidPassword(
       user.password,
       pass,
@@ -19,15 +22,19 @@ export class AuthService {
     if (isValidPassword) {
       throw new UnauthorizedException('Username or Password is incorrect');
     }
-    if (!user) {
-      return null;
-    }
 
     return user;
   }
+
   async login(user: any) {
     const payload = { sub: user._id, email: user.email, name: user.name };
+
     return {
+      user: {
+        email: user.email,
+        name: user.name,
+        _id: user._id,
+      },
       access_token: await this.jwtService.signAsync(payload),
     };
   }
