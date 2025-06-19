@@ -10,3 +10,10 @@ export class CreateAuthDto {
   @IsNotEmpty()
   name: string;
 }
+export class CodeAuthDto {
+  @IsNotEmpty()
+  _id: string;
+
+  @IsNotEmpty()
+  code: string;
+}

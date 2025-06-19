@@ -9,7 +9,7 @@ import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import dayjs from 'dayjs';
 import mongoose, { Model } from 'mongoose';
-import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+import { CodeAuthDto, CreateAuthDto } from 'src/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -141,4 +141,26 @@ export class UsersService {
 
     return newUser;
   }
+
+  handleActivateAccount = async (codeAuthDto: CodeAuthDto) => {
+    const user = await this.userModel.findOne({
+      _id: codeAuthDto._id,
+      codeID: codeAuthDto.code,
+    });
+    if (!user) {
+      throw new NotFoundException('Code expired or invalid');
+    }
+    const isBeforeExpiration = dayjs().isBefore(user.codeExpiration);
+    if (isBeforeExpiration) {
+      await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          isActive: true,
+        },
+      );
+      return { isBeforeExpiration };
+    } else {
+      throw new BadRequestException('Code expired');
+    }
+  };
 }
