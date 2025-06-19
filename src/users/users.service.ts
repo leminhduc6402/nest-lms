@@ -77,12 +77,12 @@ export class UsersService {
 
     return {
       meta: {
-        current: currentPage, //trang hiện tại
-        pageSize: limit, //số lượng bản ghi đã lấy
-        pages: totalPages, //tổng số trang với điều kiện query
-        total: totalItems, // tổng số phần tử (số bản ghi)
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems,
       },
-      results, //kết quả query
+      results,
     };
   }
 
@@ -163,4 +163,30 @@ export class UsersService {
       throw new BadRequestException('Code expired');
     }
   };
+
+  async retryActive(email: string) {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+    if (user.isActive) {
+      throw new BadRequestException('User is already active');
+    }
+    const codeID = uuidv4();
+    await user.updateOne({
+      codeID,
+      codeExpiration: dayjs().add(5, 'minutes'),
+    });
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Activate Your Account',
+      text: 'welcome',
+      template: 'register',
+      context: {
+        name: user.name ?? user.email,
+        activationCode: codeID,
+      },
+    });
+    return { _id: user._id };
+  }
 }
