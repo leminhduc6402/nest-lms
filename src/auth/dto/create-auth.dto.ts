@@ -17,3 +17,16 @@ export class CodeAuthDto {
   @IsNotEmpty()
   code: string;
 }
+export class ChangePasswordAuthDto {
+  @IsNotEmpty()
+  email: string;
+
+  @IsNotEmpty()
+  code: string;
+
+  @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
+  confirmPassword: string;
+}

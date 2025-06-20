@@ -1,7 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { CodeAuthDto, CreateAuthDto } from './dto/create-auth.dto';
+import {
+  ChangePasswordAuthDto,
+  CodeAuthDto,
+  CreateAuthDto,
+} from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,15 +18,13 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user) return null;
-
     const isValidPassword = await this.usersService.isValidPassword(
-      user.password,
       pass,
+      user.password,
     );
-    if (isValidPassword) {
+    if (!isValidPassword) {
       throw new UnauthorizedException('Username or Password is incorrect');
     }
-
     return user;
   }
 
@@ -49,5 +51,12 @@ export class AuthService {
 
   async retryActive(email: string) {
     return await this.usersService.retryActive(email);
+  }
+  async retryPassword(email: string) {
+    return await this.usersService.retryPassword(email);
+  }
+
+  async renewPassword(changePasswordAuthDto: ChangePasswordAuthDto) {
+    return await this.usersService.renewPassword(changePasswordAuthDto);
   }
 }
