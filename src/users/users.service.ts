@@ -9,7 +9,11 @@ import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcrypt';
 import dayjs from 'dayjs';
 import mongoose, { Model } from 'mongoose';
-import { CodeAuthDto, CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+import {
+  ChangePasswordAuthDto,
+  CodeAuthDto,
+  CreateAuthDto,
+} from 'src/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -173,10 +177,6 @@ export class UsersService {
       throw new BadRequestException('User is already active');
     }
     const codeID = uuidv4();
-    await user.updateOne({
-      codeID,
-      codeExpiration: dayjs().add(5, 'minutes'),
-    });
     this.mailerService.sendMail({
       to: email,
       subject: 'Activate Your Account',
@@ -187,6 +187,59 @@ export class UsersService {
         activationCode: codeID,
       },
     });
+    await user.updateOne({
+      codeID,
+      codeExpiration: dayjs().add(5, 'minutes'),
+    });
     return { _id: user._id };
+  }
+
+  async retryPassword(email: string) {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+    const codeID = uuidv4();
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Change Your Password',
+      text: 'welcome',
+      template: 'register',
+      context: {
+        name: user.name ?? user.email,
+        activationCode: codeID,
+      },
+    });
+    await user.updateOne({
+      codeID,
+      codeExpiration: dayjs().add(5, 'minutes'),
+    });
+    return { _id: user._id, email: user.email };
+  }
+
+  async renewPassword(changePasswordAuthDto: ChangePasswordAuthDto) {
+    const { email, code, password, confirmPassword } = changePasswordAuthDto;
+    if (password !== confirmPassword) {
+      throw new BadRequestException(
+        'Password and Confirm Password do not match',
+      );
+    }
+    const user = await this.userModel.findOne({ email, codeID: code });
+    if (!user) {
+      throw new NotFoundException(
+        `User with email ${email} not found or code is invalid`,
+      );
+    }
+
+    const isBeforeExpiration = dayjs().isBefore(user.codeExpiration);
+    if (isBeforeExpiration) {
+      const newPassword = await this.hashPassword(password);
+      await user.updateOne({
+        password: newPassword,
+      });
+      return { isBeforeExpiration };
+    } else {
+      throw new BadRequestException('Code expired');
+    }
   }
 }
