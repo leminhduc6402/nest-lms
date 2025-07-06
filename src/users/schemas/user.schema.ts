@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Course } from 'src/courses/schemas/course.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -17,8 +18,8 @@ export class User {
   @Prop({ default: 'USER' })
   role: string; // e.g., 'student', 'teacher', 'admin'
 
-  @Prop() //{ type: mongoose.Schema.Types.ObjectId, ref: User.name }
-  enrolledCourses: string; //mongoose.Schema.Types.ObjectId
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Course.name })
+  enrolledCourses: mongoose.Schema.Types.ObjectId[]; //
 
   @Prop()
   image: string;

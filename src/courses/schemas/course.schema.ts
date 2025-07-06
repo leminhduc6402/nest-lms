@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Section } from 'src/sections/schemas/section.schema';
 import { User } from 'src/users/schemas/user.schema';
 
 export type CourseDocument = HydratedDocument<Course>;
@@ -21,11 +22,14 @@ export class Course {
   @Prop()
   category: string;
 
-  // @Prop()
-  // chapter: string[];
-
   @Prop()
   status: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
+  teacherId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Section.name })
+  sectionId: mongoose.Schema.Types.ObjectId[];
 
   @Prop()
   createdAt: Date;
@@ -36,13 +40,13 @@ export class Course {
   @Prop()
   deletedAt: Date;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }] })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   createdBy: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }] })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   updatedBy: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }] })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   deletedBy: mongoose.Schema.Types.ObjectId;
 
   @Prop()
