@@ -8,6 +8,10 @@ import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
+import { CoursesModule } from './courses/courses.module';
+import { LessonsModule } from './lessons/lessons.module';
+import { SectionsModule } from './sections/sections.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -50,6 +54,10 @@ import { join } from 'path';
     }),
     UsersModule,
     AuthModule,
+    CoursesModule,
+    LessonsModule,
+    SectionsModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
