@@ -18,6 +18,9 @@ export class CreateUserDto {
   enrolledCourses: string;
 
   @IsOptional()
+  accountType: string;
+
+  @IsOptional()
   image: string;
 
   @IsOptional()

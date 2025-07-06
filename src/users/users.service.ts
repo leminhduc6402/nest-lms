@@ -102,7 +102,9 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...newUpdateUserDto } = updateUserDto;
+    return await this.userModel.findByIdAndUpdate(id, newUpdateUserDto, {
       new: true,
     });
   }
