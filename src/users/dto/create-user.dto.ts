@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import mongoose from 'mongoose';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -15,7 +16,7 @@ export class CreateUserDto {
   role: string;
 
   @IsOptional()
-  enrolledCourses: string;
+  enrolledCourses: mongoose.Schema.Types.ObjectId[];
 
   @IsOptional()
   accountType: string;
