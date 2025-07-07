@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Lesson } from 'src/lessons/schemas/lesson.schema';
-import { User } from 'src/users/schemas/user.schema';
 
 export type SectionDocument = HydratedDocument<Section>;
 
@@ -10,7 +9,7 @@ export class Section {
   @Prop()
   name: string;
 
-  @Prop({ type: { type: [mongoose.Schema.Types.ObjectId], ref: Lesson.name } })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }] })
   lessonId: Lesson[];
 
   @Prop()
@@ -22,13 +21,13 @@ export class Section {
   @Prop()
   updatedAt: Date;
 
-  @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: User.name } })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   createdBy: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: User.name } })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   updatedBy: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: User.name } })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   deletedBy: mongoose.Schema.Types.ObjectId;
 
   @Prop()
