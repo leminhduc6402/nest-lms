@@ -18,6 +18,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
+import { ConfigService } from '@nestjs/config';
+import { IUser } from './user.interface';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +27,7 @@ export class UsersService {
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
     private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
   ) {}
 
   hashPassword = (password: string) => {
@@ -43,7 +46,7 @@ export class UsersService {
     });
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, user: IUser) {
     const isExist = await this.userModel.findOne({
       email: createUserDto.email,
     });
@@ -56,6 +59,7 @@ export class UsersService {
     const newUser = await this.userModel.create({
       ...createUserDto,
       password: hashPassword,
+      createdBy: user._id,
     });
     return newUser;
   }
@@ -101,19 +105,40 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...newUpdateUserDto } = updateUserDto;
-    return await this.userModel.findByIdAndUpdate(id, newUpdateUserDto, {
-      new: true,
-    });
+    return await this.userModel.findByIdAndUpdate(
+      id,
+      { ...newUpdateUserDto, updatedBy: user._id },
+      {
+        new: true,
+      },
+    );
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new NotFoundException('Can not found this user');
+      return 'not found user';
     }
-    return await this.userModel.findByIdAndDelete(id).exec();
+    const foundUser = await this.userModel.findById(id);
+    if (
+      foundUser &&
+      foundUser.email === this.configService.get<string>('ADMIN_EMAIL')
+    )
+      throw new BadRequestException(
+        'You do not have enough permission to remove this account',
+      );
+
+    const userDeleted = await this.userModel.updateOne(
+      { _id: id },
+      {
+        deletedBy: user._id,
+        isDeleted: true,
+        deletedAt: dayjs(),
+      },
+    );
+    return userDeleted;
   }
 
   async handleRegister(createUserDto: CreateAuthDto) {

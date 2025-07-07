@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFileDto } from './dto/create-file.dto';
-import { UpdateFileDto } from './dto/update-file.dto';
-import { Multer } from 'multer';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { FileDocument } from './schemas/file.schema';
 import { IUser } from 'src/users/user.interface';
-import { ConfigService } from '@nestjs/config';
+import { UpdateFileDto } from './dto/update-file.dto';
+import { FileDocument } from './schemas/file.schema';
 
 @Injectable()
 export class FilesService {
