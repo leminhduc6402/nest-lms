@@ -1,11 +1,16 @@
-import { IsMongoId, IsNotEmpty } from 'class-validator';
-import mongoose from 'mongoose';
+import { IsArray, IsMongoId, IsNotEmpty, IsNumber } from 'class-validator';
+import { CreateLessonDto } from 'src/lessons/dto/create-lesson.dto';
 
 export class CreateSectionDto {
   @IsNotEmpty()
   name: string;
 
   @IsNotEmpty()
-  @IsMongoId()
-  courseId: mongoose.Schema.Types.ObjectId;
+  @IsMongoId({ each: true })
+  @IsArray()
+  lessons: CreateLessonDto[];
+
+  @IsNotEmpty()
+  @IsNumber()
+  order: number;
 }

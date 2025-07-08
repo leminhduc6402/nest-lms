@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsArray, IsMongoId, IsNotEmpty, IsOptional } from 'class-validator';
+import { CreateSectionDto } from 'src/sections/dto/create-section.dto';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -19,9 +20,8 @@ export class CreateCourseDto {
   @IsNotEmpty()
   status: string;
 
-  // @IsNotEmpty()
-  // teacherId: string;
-
-  @IsOptional()
-  sectionId: string;
+  @IsNotEmpty()
+  @IsMongoId({ each: true })
+  @IsArray()
+  sections: CreateSectionDto[];
 }

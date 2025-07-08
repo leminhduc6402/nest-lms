@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { LessonsService } from './lessons.service';
-import { LessonsController } from './lessons.controller';
 import { MongooseModule } from '@nestjs/mongoose';
+import { LessonsController } from './lessons.controller';
+import { LessonsService } from './lessons.service';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
 
 @Module({
