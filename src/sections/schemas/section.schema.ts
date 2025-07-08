@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Lesson } from 'src/lessons/schemas/lesson.schema';
 
 export type SectionDocument = HydratedDocument<Section>;
 
@@ -10,7 +9,7 @@ export class Section {
   name: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }] })
-  lessonId: Lesson[];
+  lessonId: mongoose.Types.ObjectId[];
 
   @Prop()
   order: number;

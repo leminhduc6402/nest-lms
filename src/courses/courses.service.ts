@@ -11,21 +11,37 @@ import mongoose, { Model } from 'mongoose';
 import { IUser } from 'src/users/user.interface';
 import aqp from 'api-query-params';
 import dayjs from 'dayjs';
+import { SectionsService } from 'src/sections/sections.service';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectModel(Course.name)
     private courseModel: Model<CourseDocument>,
+    private readonly sectionService: SectionsService,
   ) {}
 
   async create(createCourseDto: CreateCourseDto, user: IUser) {
-    return await this.courseModel.create({
-      ...createCourseDto,
+    const { sections, ...newCreateCourseDto } = createCourseDto;
+
+    const course = await this.courseModel.create({
+      ...newCreateCourseDto,
+      sectionId: [],
       teacherId: user._id,
       createdBy: user._id,
       updatedBy: user._id,
     });
+
+    const sectionIds = [];
+    for (const item of sections || []) {
+      const lesson = await this.sectionService.create(item, user);
+      sectionIds.push(lesson._id);
+    }
+
+    course.sectionId = sectionIds;
+    await course.save();
+
+    return course;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {

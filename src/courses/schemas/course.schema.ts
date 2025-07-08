@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Section } from 'src/sections/schemas/section.schema';
 
 export type CourseDocument = HydratedDocument<Course>;
 
@@ -28,7 +27,7 @@ export class Course {
   teacherId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }] })
-  sectionId: Section[];
+  sectionId: mongoose.Types.ObjectId[];
 
   @Prop()
   createdAt: Date;
