@@ -1,11 +1,17 @@
-import { IsArray, IsMongoId, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  IsArray,
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 import { CreateLessonDto } from 'src/lessons/dto/create-lesson.dto';
 
 export class CreateSectionDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
   lessons: CreateLessonDto[];

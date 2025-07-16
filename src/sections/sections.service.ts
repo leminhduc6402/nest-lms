@@ -30,7 +30,7 @@ export class SectionsService {
       createdBy: user._id,
     });
 
-    if (lessons.length !== 0) {
+    if (Array.isArray(lessons) && lessons.length > 0) {
       const lessonIds = [];
 
       for (const item of lessons || []) {

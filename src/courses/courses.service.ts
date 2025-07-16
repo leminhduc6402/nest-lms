@@ -31,9 +31,10 @@ export class CoursesService {
       createdBy: user._id,
       updatedBy: user._id,
     });
-    if (sections.length !== 0) {
+    if (Array.isArray(sections) && sections.length > 0) {
       const sectionIds = [];
-      for (const item of sections || []) {
+
+      for (const item of sections) {
         const lesson = await this.sectionService.create(item, user);
         sectionIds.push(lesson._id);
       }
