@@ -31,15 +31,17 @@ export class CoursesService {
       createdBy: user._id,
       updatedBy: user._id,
     });
+    if (Array.isArray(sections) && sections.length > 0) {
+      const sectionIds = [];
 
-    const sectionIds = [];
-    for (const item of sections || []) {
-      const lesson = await this.sectionService.create(item, user);
-      sectionIds.push(lesson._id);
+      for (const item of sections) {
+        const lesson = await this.sectionService.create(item, user);
+        sectionIds.push(lesson._id);
+      }
+
+      course.sectionId = sectionIds;
+      await course.save();
     }
-
-    course.sectionId = sectionIds;
-    await course.save();
 
     return course;
   }

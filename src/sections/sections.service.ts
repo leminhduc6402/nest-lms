@@ -30,15 +30,17 @@ export class SectionsService {
       createdBy: user._id,
     });
 
-    const lessonIds = [];
+    if (Array.isArray(lessons) && lessons.length > 0) {
+      const lessonIds = [];
 
-    for (const item of lessons || []) {
-      const lesson = await this.lessonService.create(item, user);
-      lessonIds.push(lesson._id);
+      for (const item of lessons || []) {
+        const lesson = await this.lessonService.create(item, user);
+        lessonIds.push(lesson._id);
+      }
+
+      section.lessonId = lessonIds;
+      await section.save();
     }
-
-    section.lessonId = lessonIds;
-    await section.save();
 
     return section;
   }

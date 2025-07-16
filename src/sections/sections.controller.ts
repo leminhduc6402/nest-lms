@@ -11,7 +11,7 @@ import {
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
-import { User } from 'src/customize/decorator';
+import { Public, User } from 'src/customize/decorator';
 import { IUser } from 'src/users/user.interface';
 
 @Controller('sections')
@@ -23,6 +23,7 @@ export class SectionsController {
     return this.sectionsService.create(createSectionDto, user);
   }
 
+  @Public()
   @Get()
   findAll(
     @Query('current') currentPage: string,

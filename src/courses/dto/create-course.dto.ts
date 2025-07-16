@@ -20,7 +20,7 @@ export class CreateCourseDto {
   @IsNotEmpty()
   status: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
   sections: CreateSectionDto[];

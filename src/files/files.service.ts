@@ -15,7 +15,6 @@ export class FilesService {
   ) {}
   async create(file: Express.Multer.File, user: IUser) {
     const { filename, originalname, size, mimetype } = file;
-    console.log(file);
     return await this.fileModel.create({
       originalName: originalname,
       fileName: filename,
@@ -35,6 +34,7 @@ export class FilesService {
   }
 
   update(id: number, updateFileDto: UpdateFileDto) {
+    console.log(updateFileDto);
     return `This action updates a #${id} file`;
   }
 
