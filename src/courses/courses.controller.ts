@@ -8,7 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { User } from 'src/customize/decorator';
+import { Public, User } from 'src/customize/decorator';
 import { IUser } from 'src/users/user.interface';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -23,6 +23,7 @@ export class CoursesController {
     return this.coursesService.create(createCourseDto, user);
   }
 
+  @Public()
   @Get()
   findAll(
     @Query('current') currentPage: string,

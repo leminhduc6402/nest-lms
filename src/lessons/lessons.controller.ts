@@ -11,7 +11,7 @@ import {
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { User } from 'src/customize/decorator';
+import { Public, User } from 'src/customize/decorator';
 import { IUser } from 'src/users/user.interface';
 
 @Controller('lessons')
@@ -23,6 +23,7 @@ export class LessonsController {
     return this.lessonsService.create(createLessonDto, user);
   }
 
+  @Public()
   @Get()
   findAll(
     @Query('current') currentPage: string,

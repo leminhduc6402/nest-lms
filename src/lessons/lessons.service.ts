@@ -22,6 +22,7 @@ export class LessonsService {
     return await this.lessonModel.create({
       ...createLessonDto,
       createdBy: user._id,
+      updatedBy: user._id,
     });
   }
 
